@@ -105,7 +105,7 @@ func addTask(w http.ResponseWriter, r *http.Request) {
 
 }
 
-// обработчик для получения задачи по ID
+// getTaskById обработчик для получения задачи по ID
 func getTaskById(w http.ResponseWriter, r *http.Request) {
 
 	if r.Method != http.MethodGet {
@@ -140,7 +140,7 @@ func getTaskById(w http.ResponseWriter, r *http.Request) {
 	w.Write(resp)
 }
 
-// обработчик удаления задачи по ID
+// delTaskById обработчик удаления задачи по ID
 func delTaskById(w http.ResponseWriter, r *http.Request) {
 
 	if r.Method != http.MethodDelete {
