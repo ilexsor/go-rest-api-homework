@@ -48,17 +48,6 @@ var tasks = map[string]Task{
 // getTasks обработчик для получения всех задач
 func getTasks(w http.ResponseWriter, r *http.Request) {
 
-	if r.Method != http.MethodGet {
-		http.Error(w, "недопустимый метод", http.StatusMethodNotAllowed)
-		return
-	}
-
-	if len(tasks) == 0 || tasks == nil {
-		err := errors.New("список задач пуст")
-		http.Error(w, err.Error(), http.StatusNotFound)
-		return
-	}
-
 	response, err := json.Marshal(tasks)
 	if err != nil {
 		marshalErr := fmt.Errorf("ошибка в процессе сериализации: %s", err)
@@ -68,7 +57,11 @@ func getTasks(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	w.Write(response)
+	_, err = w.Write(response)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 }
 
 // addTask обработчик для отправки задачи на сервер
@@ -76,11 +69,6 @@ func addTask(w http.ResponseWriter, r *http.Request) {
 
 	var task Task
 	var buf bytes.Buffer
-
-	if r.Method != http.MethodPost {
-		http.Error(w, "недопустимый метод", http.StatusMethodNotAllowed)
-		return
-	}
 
 	_, err := buf.ReadFrom(r.Body)
 	if err != nil {
@@ -105,19 +93,8 @@ func addTask(w http.ResponseWriter, r *http.Request) {
 
 }
 
-// getTaskById обработчик для получения задачи по ID
-func getTaskById(w http.ResponseWriter, r *http.Request) {
-
-	if r.Method != http.MethodGet {
-		http.Error(w, "недопустимый метод", http.StatusMethodNotAllowed)
-		return
-	}
-
-	if len(tasks) == 0 || tasks == nil {
-		err := errors.New("список задач пуст")
-		http.Error(w, err.Error(), http.StatusNotFound)
-		return
-	}
+// getTask обработчик для получения задачи по ID
+func getTask(w http.ResponseWriter, r *http.Request) {
 
 	id := chi.URLParam(r, "id")
 
@@ -137,22 +114,15 @@ func getTaskById(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	w.Write(resp)
+	_, err = w.Write(response)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 }
 
-// delTaskById обработчик удаления задачи по ID
-func delTaskById(w http.ResponseWriter, r *http.Request) {
-
-	if r.Method != http.MethodDelete {
-		http.Error(w, "недопустимый метод", http.StatusMethodNotAllowed)
-		return
-	}
-
-	if len(tasks) == 0 || tasks == nil {
-		err := errors.New("список задач пуст")
-		http.Error(w, err.Error(), http.StatusNotFound)
-		return
-	}
+// deleteTask обработчик удаления задачи по ID
+func deleteTask(w http.ResponseWriter, r *http.Request) {
 
 	id := chi.URLParam(r, "id")
 
@@ -174,8 +144,8 @@ func main() {
 
 	r.Get("/tasks", getTasks)
 	r.Post("/tasks", addTask)
-	r.Get("/task/{id}", getTaskById)
-	r.Delete("/task/{id}", delTaskById)
+	r.Get("/task/{id}", getTask)
+	r.Delete("/task/{id}", deleteTask)
 
 	if err := http.ListenAndServe(":8080", r); err != nil {
 		fmt.Printf("Ошибка при запуске сервера: %s", err.Error())
