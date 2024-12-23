@@ -105,7 +105,7 @@ func getTask(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	resp, err := json.Marshal(task)
+	response, err := json.Marshal(task)
 
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
