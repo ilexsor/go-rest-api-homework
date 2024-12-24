@@ -46,7 +46,7 @@ var tasks = map[string]Task{
 // ...
 
 // Tasks обработчик для получения всех задач
-func Tasks(w http.ResponseWriter, r *http.Request) {
+func tasks(w http.ResponseWriter, r *http.Request) {
 
 	response, err := json.Marshal(tasks)
 	if err != nil {
@@ -142,7 +142,7 @@ func deleteTask(w http.ResponseWriter, r *http.Request) {
 func main() {
 	r := chi.NewRouter()
 
-	r.Get("/tasks", Tasks)
+	r.Get("/tasks", tasks)
 	r.Post("/tasks", addTask)
 	r.Get("/task/{id}", getTask)
 	r.Delete("/task/{id}", deleteTask)
